@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#A81433">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+<title>Béton TG</title>
+</head>
+<body>
+<header>
+  <img src="icons/tg-prefa-logo.png" alt="TG PREFA" class="logo">
+  <h1>BETON TG PREFA</h1>
+</header>
+
+<main>
+  <section id="welcome" class="card">
+    <h2>Bienvenue</h2>
+    <p>Choisissez une option pour commencer.</p>
+    <button onclick="showLogin()">🔑 Se connecter</button>
+    <button class="secondary" onclick="showRegister()">➕ Créer un compte</button>
+  </section>
+
+  <section id="login" class="card hidden">
+    <h2>🔑 Se connecter</h2>
+    <label>Centre</label>
+    <select id="loginCenter"></select>
+    <label>PIN (4 chiffres)</label>
+    <input id="loginPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
+    <button onclick="login()">Se connecter</button>
+    <button class="linkbtn" onclick="showWelcome()">← Retour</button>
+    <p id="loginMsg" class="msg"></p>
+  </section>
+
+  <section id="register" class="card hidden">
+    <h2>➕ Créer un compte centre</h2>
+    <label>Nom du centre</label>
+    <input id="registerCenter" placeholder="Ex. CAB AGADIR">
+    <label>PIN (4 chiffres)</label>
+    <input id="registerPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
+    <label>Confirmer le PIN</label>
+    <input id="registerPin2" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
+    <button onclick="register()">Créer le compte</button>
+    <button class="linkbtn" onclick="showWelcome()">← Retour</button>
+    <p id="registerMsg" class="msg"></p>
+  </section>
+
+  <section id="home" class="hidden">
+    <div class="topbar">
+      <div><strong id="currentCenter"></strong></div>
+      <button class="logout" onclick="logout()">Déconnexion</button>
+    </div>
+    <div class="grid">
+      <button class="module">🧮<span>Calcul des matières premières</span></button>
+      <button class="module">📦<span>Stock</span></button>
+      <button class="module">🏭<span>Production</span></button>
+      <button class="module">📋<span>Commandes</span></button>
+      <button class="module">🚚<span>Camions</span></button>
+      <button class="module">👥<span>Clients</span></button>
+      <button class="module">💰<span>Dépenses</span></button>
+      <button class="module">📊<span>Rapports</span></button>
+      <button class="module">⚙️<span>Formules & paramètres</span></button>
+    </div>
+    <div class="notice">
+      <strong>Mode V2</strong>
+      <p>Cette première version prépare les comptes séparés par centre. La connexion Internet et la base de données seront ajoutées à l'étape suivante.</p>
+    </div>
+  </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
