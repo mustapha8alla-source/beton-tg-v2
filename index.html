@@ -129,7 +129,10 @@
 <div class="daily-box"><label data-fr="Date" data-ar="التاريخ">Date</label><input id="truckDate" type="date"><button onclick="saveDailyTruckStatus()" data-fr="💾 Enregistrer la journée" data-ar="💾 حفظ حالة اليوم">💾 Enregistrer la journée</button></div>
 <div id="truckDailyList"></div>
 <h3 data-fr="Synthèse par période" data-ar="ملخص حسب المدة">Synthèse par période</h3>
-<div class="period-grid"><label data-fr="Du" data-ar="من">Du<input id="truckFrom" type="date"></label><label data-fr="Au" data-ar="إلى">Au<input id="truckTo" type="date"></label></div>
+<div class="period-grid">
+<label class="date-field" data-fr="Du" data-ar="من">Du<input id="truckFrom" type="date" aria-label="Date de début"></label>
+<label class="date-field" data-fr="Au" data-ar="إلى">Au<input id="truckTo" type="date" aria-label="Date de fin"></label>
+</div>
 <button onclick="truckSummary()" data-fr="📊 Afficher la synthèse" data-ar="📊 عرض الملخص">📊 Afficher la synthèse</button>
 <div id="truckSummary"></div>
 <p class="hint" data-fr="Chaque journée enregistrée est comptée comme Travail ou Arrêt." data-ar="كل يوم مسجل يحسب كاشتغال أو توقف.">Chaque journée enregistrée est comptée comme Travail ou Arrêt.</p>

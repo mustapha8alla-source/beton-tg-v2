@@ -128,7 +128,8 @@ function saveDailyTruckStatus(){
 }
 function truckSummary(){
  const data=getTrucks(currentCenter()),from=$("truckFrom")?.value,to=$("truckTo")?.value;
- if(!from||!to||from>to){if($("truckSummary"))$("truckSummary").innerHTML="";return;}
+ if(!from||!to){$("truckSummary").innerHTML='<div class="notice">Choisissez une date de début et une date de fin.</div>';return;}
+ if(from>to){$("truckSummary").innerHTML='<div class="notice">La date « Du » doit être antérieure ou égale à la date « Au ».</div>';return;}
  const dates=Object.keys(data.days).filter(d=>d>=from&&d<=to);
  const rows=data.list.map(t=>{
   let work=0,stop=0;
@@ -138,61 +139,8 @@ function truckSummary(){
  $("truckSummary").innerHTML=`<div class="summary-table"><table><thead><tr><th>Camion</th><th>Jours travaillés</th><th>Jours à l'arrêt</th><th>Jours enregistrés</th></tr></thead><tbody>${rows||'<tr><td colspan="4">Aucun camion</td></tr>'}</tbody></table></div>`;
 }
 
-window.addEventListener("load",()=>{setLanguage(lang());if(currentCenter())openHome();});
-if("serviceWorker"in navigator)
-function getTrucks(center){
- const all=JSON.parse(localStorage.getItem(TRUCK_KEY)||"{}");
- if(!all[center]){all[center]={list:[],days:{}};localStorage.setItem(TRUCK_KEY,JSON.stringify(all));}
- return all[center];
-}
-function saveTrucks(center,data){const all=JSON.parse(localStorage.getItem(TRUCK_KEY)||"{}");all[center]=data;localStorage.setItem(TRUCK_KEY,JSON.stringify(all));}
-function todayLocal(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10);}
-function openTrucks(){
- hideAll();$("trucks").classList.remove("hidden");
- const t=todayLocal();$("truckDate").value=t;$("truckFrom").value=t;$("truckTo").value=t;
- renderDailyTrucks();truckSummary();setLanguage(lang());
-}
-function addTruck(){
- const name=(prompt(lang()==="ar"?"أدخل اسم أو رقم الشاحنة:":"Entrez le nom ou numéro du camion :")||"").trim().toUpperCase();
- if(!name)return;
- const data=getTrucks(currentCenter());
- if(data.list.some(t=>t.name===name)){alert(lang()==="ar"?"هذه الشاحنة موجودة بالفعل.":"Ce camion existe déjà.");return;}
- data.list.push({id:Date.now().toString(),name});saveTrucks(currentCenter(),data);renderDailyTrucks();truckSummary();
-}
-function deleteTruck(){
- const data=getTrucks(currentCenter());
- if(!data.list.length){alert(lang()==="ar"?"لا توجد شاحنات.":"Aucun camion.");return;}
- const list=data.list.map((t,i)=>`${i+1}. ${t.name}`).join("\n");
- const n=parseInt(prompt((lang()==="ar"?"أدخل رقم الشاحنة المراد حذفها:\n":"Numéro du camion à supprimer :\n")+list),10)-1;
- if(n<0||n>=data.list.length)return;
- if(!confirm(lang()==="ar"?"هل تريد حذف هذه الشاحنة؟":"Voulez-vous supprimer ce camion ?"))return;
- data.list.splice(n,1);saveTrucks(currentCenter(),data);renderDailyTrucks();truckSummary();
-}
-function renderDailyTrucks(){
- const data=getTrucks(currentCenter()),date=$("truckDate").value||todayLocal();
- if(!data.list.length){$("truckDailyList").innerHTML='<div class="notice">'+(lang()==="ar"?"لم تتم إضافة أي شاحنة بعد.":"Aucun camion ajouté.")+'</div>';return;}
- $("truckDailyList").innerHTML=data.list.map(t=>{
-  const work=data.days[date]?.[t.id]==="work";
-  return `<div class="truck-row"><strong>${t.name}</strong><label class="status-toggle"><input type="checkbox" data-truck="${t.id}" ${work?"checked":""}> <span>${work?(lang()==="ar"?"تشتغل":"En marche"):(lang()==="ar"?"متوقفة":"À l'arrêt")}</span></label></div>`;
- }).join("");
- document.querySelectorAll("[data-truck]").forEach(cb=>cb.addEventListener("change",()=>{cb.nextElementSibling.textContent=cb.checked?(lang()==="ar"?"تشتغل":"En marche"):(lang()==="ar"?"متوقفة":"À l'arrêt");}));
-}
-function saveDailyTruckStatus(){
- const date=$("truckDate").value;if(!date){alert("Choisissez la date.");return;}
- const data=getTrucks(currentCenter());data.days[date]={};
- document.querySelectorAll("[data-truck]").forEach(cb=>data.days[date][cb.dataset.truck]=cb.checked?"work":"stop");
- saveTrucks(currentCenter(),data);truckSummary();alert(lang()==="ar"?"تم حفظ حالة الشاحنات لهذا اليوم.":"État des camions enregistré pour cette journée.");
-}
-function truckSummary(){
- const data=getTrucks(currentCenter()),from=$("truckFrom")?.value,to=$("truckTo")?.value;
- if(!from||!to||from>to){if($("truckSummary"))$("truckSummary").innerHTML="";return;}
- const dates=Object.keys(data.days).filter(d=>d>=from&&d<=to);
- const rows=data.list.map(t=>{
-  let work=0,stop=0;
-  dates.forEach(d=>{const s=data.days[d]?.[t.id];if(s==="work")work++;if(s==="stop")stop++;});
-  return `<tr><td><strong>${t.name}</strong></td><td>${work}</td><td>${stop}</td><td>${work+stop}</td></tr>`;
- }).join("");
- $("truckSummary").innerHTML=`<div class="summary-table"><table><thead><tr><th>Camion</th><th>Jours travaillés</th><th>Jours à l'arrêt</th><th>Jours enregistrés</th></tr></thead><tbody>${rows||'<tr><td colspan="4">Aucun camion</td></tr>'}</tbody></table></div>`;
-}
-
-window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js"));
+window.addEventListener("load",()=>{
+ setLanguage(lang());
+ if(currentCenter())openHome();
+ if("serviceWorker" in navigator) navigator.serviceWorker.register("./service-worker.js");
+});
