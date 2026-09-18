@@ -15,58 +15,57 @@
 </header>
 
 <main>
-  <section id="welcome" class="card">
-    <h2>Bienvenue</h2>
-    <p>Choisissez une option pour commencer.</p>
-    <button onclick="showLogin()">🔑 Se connecter</button>
-    <button class="secondary" onclick="showRegister()">➕ Créer un compte</button>
-  </section>
+<section id="welcome" class="card">
+<h2>مرحباً بك</h2><p>اختر العملية للبدء.</p>
+<button onclick="showLogin()">🔑 تسجيل الدخول</button>
+<button class="secondary" onclick="showRegister()">➕ حساب جديد</button>
+</section>
 
-  <section id="login" class="card hidden">
-    <h2>🔑 Se connecter</h2>
-    <label>Centre</label>
-    <select id="loginCenter"></select>
-    <label>PIN (4 chiffres)</label>
-    <input id="loginPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
-    <button onclick="login()">Se connecter</button>
-    <button class="linkbtn" onclick="showWelcome()">← Retour</button>
-    <p id="loginMsg" class="msg"></p>
-  </section>
+<section id="login" class="card hidden">
+<h2>🔑 تسجيل الدخول</h2><label>مركز الخرسانة</label><select id="loginCenter"></select>
+<label>الرقم السري (4 أرقام)</label><input id="loginPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
+<button onclick="login()">دخول</button><button class="linkbtn" onclick="showWelcome()">← رجوع</button><p id="loginMsg" class="msg"></p>
+</section>
 
-  <section id="register" class="card hidden">
-    <h2>➕ Créer un compte centre</h2>
-    <label>Nom du centre</label>
-    <input id="registerCenter" placeholder="Ex. CAB AGADIR">
-    <label>PIN (4 chiffres)</label>
-    <input id="registerPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
-    <label>Confirmer le PIN</label>
-    <input id="registerPin2" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
-    <button onclick="register()">Créer le compte</button>
-    <button class="linkbtn" onclick="showWelcome()">← Retour</button>
-    <p id="registerMsg" class="msg"></p>
-  </section>
+<section id="register" class="card hidden">
+<h2>➕ إنشاء حساب مركز</h2><label>اسم المركز</label><input id="registerCenter" placeholder="مثال: CAB OULAD SALEH">
+<label>الرقم السري (4 أرقام)</label><input id="registerPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
+<label>تأكيد الرقم السري</label><input id="registerPin2" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
+<button onclick="register()">إنشاء الحساب</button><button class="linkbtn" onclick="showWelcome()">← رجوع</button><p id="registerMsg" class="msg"></p>
+</section>
 
-  <section id="home" class="hidden">
-    <div class="topbar">
-      <div><strong id="currentCenter"></strong></div>
-      <button class="logout" onclick="logout()">Déconnexion</button>
-    </div>
-    <div class="grid">
-      <button class="module">🧮<span>Calcul des matières premières</span></button>
-      <button class="module">📦<span>Stock</span></button>
-      <button class="module">🏭<span>Production</span></button>
-      <button class="module">📋<span>Commandes</span></button>
-      <button class="module">🚚<span>Camions</span></button>
-      <button class="module">👥<span>Clients</span></button>
-      <button class="module">💰<span>Dépenses</span></button>
-      <button class="module">📊<span>Rapports</span></button>
-      <button class="module">⚙️<span>Formules & paramètres</span></button>
-    </div>
-    <div class="notice">
-      <strong>Mode V2</strong>
-      <p>Cette première version prépare les comptes séparés par centre. La connexion Internet et la base de données seront ajoutées à l'étape suivante.</p>
-    </div>
-  </section>
+<section id="home" class="hidden">
+<div class="topbar"><strong id="currentCenter"></strong><button class="logout" onclick="logout()">تسجيل الخروج</button></div>
+<div class="grid">
+<button class="module" onclick="openCalcul()">🧮<span>Calcul des matières premières</span></button>
+<button class="module">📦<span>Stock</span></button><button class="module">🏭<span>Production</span></button>
+<button class="module">📋<span>Commandes</span></button><button class="module">🚚<span>Camions</span></button>
+<button class="module">👥<span>Clients</span></button><button class="module">💰<span>Dépenses</span></button><button class="module">📊<span>Rapports</span></button>
+<button class="module" onclick="openFormules()">⚙️<span>Formules & paramètres</span></button>
+</div>
+</section>
+
+<section id="calcul" class="card hidden">
+<div class="sectionhead"><h2>🧮 حساب المواد الأولية</h2><button class="small" onclick="openHome()">← الرئيسية</button></div>
+<label>نوع الخرسانة</label><select id="type" onchange="calculate()"></select>
+<label>الكمية (m³)</label><input id="qty" type="number" min="0" step="0.01" value="10" oninput="calculate()">
+<table><thead><tr><th>المادة</th><th>الوزن</th><th>الحجم</th></tr></thead><tbody id="results"></tbody></table>
+</section>
+
+<section id="formules" class="card hidden">
+<div class="sectionhead"><h2>⚙️ الفورمول والكثافات</h2><button class="small" onclick="openHome()">← الرئيسية</button></div>
+<label>نوع الخرسانة</label><select id="formulaType" onchange="renderFormula()"></select>
+<div class="formgrid">
+<label>G1<input id="G1" type="number" step="0.1"></label><label>G2<input id="G2" type="number" step="0.1"></label>
+<label>SL<input id="SL" type="number" step="0.1"></label><label>SC<input id="SC" type="number" step="0.1"></label>
+<label>Ciment<input id="Ciment" type="number" step="0.1"></label><label>Adjuvant<input id="Adjuvant" type="number" step="0.1"></label>
+<label>Eau<input id="Eau" type="number" step="0.1"></label>
+</div>
+<button onclick="addFormula()">➕ إضافة وصفة</button>
+<button class="secondary" onclick="saveFormula()">💾 حفظ التغييرات</button>
+<button class="danger" onclick="deleteFormula()">🗑️ حذف الوصفة</button>
+<p class="hint">عند الحفظ أو الحذف سيُطلب الرقم السري للمركز.</p>
+</section>
 </main>
 
 <script src="app.js"></script>
