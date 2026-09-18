@@ -1,122 +1,85 @@
-const KEY="betonTG.v2.centers";
-const FORMKEY="betonTG.v2.formulas";
-const initialCenters=[
-  {name:"CAB AGADIR",pin:""},
-  {name:"CAB MARRAKECH",pin:""},
-  {name:"CAB BENGUERIR",pin:""},
-  {name:"GAB FES",pin:""}
+const CENTER_KEY="betonTG.v2.centers";
+const DATA_KEY="betonTG.v2.centerData";
+const LANG_KEY="betonTG.language";
+const DEFAULT_CENTERS=[
+ {name:"CAB AGADIR",pin:""},{name:"CAB MARRAKECH",pin:""},
+ {name:"CAB BENGUERIR",pin:""},{name:"GAB FES",pin:""}
 ];
-const initialFormulas={
- B30:{G1:543,G2:534,SL:427,SC:427,Ciment:320,Adjuvant:3.4,Eau:158},
- B35:{G1:543,G2:530,SL:418,SC:417,Ciment:350,Adjuvant:3.8,Eau:156}
+const DEFAULT_DATA={
+ formulas:{
+  B30:{G1:543,G2:534,SL:427,SC:427,Ciment:320,Adjuvant:3.4,Eau:158},
+  B35:{G1:543,G2:530,SL:418,SC:417,Ciment:350,Adjuvant:3.8,Eau:156}
+ },
+ densities:{G1:1450,G2:1450,SL:1600,SC:1450}
 };
-const defaultDensities={G1:1450,G2:1450,SL:1600,SC:1450};
-
-function centers(){
- const s=localStorage.getItem(KEY);
- if(!s){localStorage.setItem(KEY,JSON.stringify(initialCenters));return initialCenters;}
- return JSON.parse(s);
-}
-function saveCenters(x){localStorage.setItem(KEY,JSON.stringify(x));}
-function formulasFor(center){
- const all=JSON.parse(localStorage.getItem(FORMKEY)||"{}");
- if(!all[center]) {
-   all[center]={formulas:JSON.parse(JSON.stringify(initialFormulas)),densities:JSON.parse(JSON.stringify(defaultDensities))};
-   localStorage.setItem(FORMKEY,JSON.stringify(all));
- }
+function $(id){return document.getElementById(id);}
+function getCenters(){const s=localStorage.getItem(CENTER_KEY);if(!s){localStorage.setItem(CENTER_KEY,JSON.stringify(DEFAULT_CENTERS));return DEFAULT_CENTERS;}return JSON.parse(s);}
+function saveCenters(x){localStorage.setItem(CENTER_KEY,JSON.stringify(x));}
+function currentCenter(){return sessionStorage.getItem("betonTG.current");}
+function getData(center){
+ const all=JSON.parse(localStorage.getItem(DATA_KEY)||"{}");
+ if(!all[center]){all[center]=JSON.parse(JSON.stringify(DEFAULT_DATA));localStorage.setItem(DATA_KEY,JSON.stringify(all));}
  return all[center];
 }
-function saveFormulas(center,data){
- const all=JSON.parse(localStorage.getItem(FORMKEY)||"{}");
- all[center]=data;
- localStorage.setItem(FORMKEY,JSON.stringify(all));
+function saveData(center,data){const all=JSON.parse(localStorage.getItem(DATA_KEY)||"{}");all[center]=data;localStorage.setItem(DATA_KEY,JSON.stringify(all));}
+function setLanguage(lang){
+ localStorage.setItem(LANG_KEY,lang);
+ document.documentElement.lang=lang==="ar"?"ar":"fr";
+ document.documentElement.dir=lang==="ar"?"rtl":"ltr";
+ document.querySelectorAll("[data-fr]").forEach(el=>el.textContent=el.getAttribute("data-"+lang));
+ document.querySelectorAll(".lang").forEach(b=>b.classList.toggle("active",(lang==="fr"&&b.textContent==="FR")||(lang==="ar"&&b.textContent==="ع")));
 }
-function $(id){return document.getElementById(id);}
-function hideAll(){["welcome","login","register","home","calcul","formules"].forEach(x=>$(x)?.classList.add("hidden"));}
+function lang(){return localStorage.getItem(LANG_KEY)||"fr";}
+function hideAll(){["welcome","login","register","home","calcul","formules"].forEach(id=>$(id)?.classList.add("hidden"));}
 function showWelcome(){hideAll();$("welcome").classList.remove("hidden");}
-function showLogin(){
- hideAll();$("login").classList.remove("hidden");$("loginMsg").textContent="";
- $("loginCenter").innerHTML=centers().map(c=>`<option>${c.name}</option>`).join("");
-}
-function showRegister(){hideAll();$("register").classList.remove("hidden");$("registerMsg").textContent="";}
+function showLogin(){hideAll();$("login").classList.remove("hidden");$("loginMsg").textContent="";$("loginCenter").innerHTML=getCenters().map(c=>`<option value="${c.name}">${c.name}</option>`).join("");setLanguage(lang());}
+function showRegister(){hideAll();$("register").classList.remove("hidden");$("registerMsg").textContent="";setLanguage(lang());}
 function register(){
- const name=$("registerCenter").value.trim().toUpperCase(), p=$("registerPin").value.trim(), p2=$("registerPin2").value.trim();
- if(!name){$("registerMsg").textContent="أدخل اسم المركز.";return}
- if(!/^\d{4}$/.test(p)){$("registerMsg").textContent="الرقم السري يجب أن يتكون من 4 أرقام.";return}
- if(p!==p2){$("registerMsg").textContent="الرقمان السريان غير متطابقين.";return}
- const list=centers(), existing=list.find(c=>c.name===name);
- if(existing){
-   if(existing.pin){$("registerMsg").textContent="هذا المركز لديه حساب بالفعل. استخدم تسجيل الدخول.";return}
-   existing.pin=p;
- }else list.push({name,pin:p});
- saveCenters(list); alert("تم إنشاء حساب "+name); showLogin(); $("loginCenter").value=name;
+ const name=$("registerCenter").value.trim().toUpperCase(),p=$("registerPin").value.trim(),p2=$("registerPin2").value.trim();
+ if(!name){$("registerMsg").textContent=lang()==="ar"?"أدخل اسم المركز.":"Entrez le nom du centre.";return;}
+ if(!/^\d{4}$/.test(p)){ $("registerMsg").textContent=lang()==="ar"?"الرقم السري يجب أن يكون 4 أرقام.":"Le PIN doit contenir exactement 4 chiffres.";return;}
+ if(p!==p2){$("registerMsg").textContent=lang()==="ar"?"الرقمان غير متطابقين.":"Les deux PIN ne correspondent pas.";return;}
+ const list=getCenters(),existing=list.find(c=>c.name===name);
+ if(existing){if(existing.pin){$("registerMsg").textContent=lang()==="ar"?"هذا المركز لديه حساب بالفعل.":"Ce centre possède déjà un compte.";return;}existing.pin=p;}else list.push({name,pin:p});
+ saveCenters(list);getData(name);alert(lang()==="ar"?"تم إنشاء الحساب.":"Compte créé.");showLogin();$("loginCenter").value=name;
 }
 function login(){
- const name=$("loginCenter").value,pin=$("loginPin").value.trim(),c=centers().find(x=>x.name===name);
- if(!c||!c.pin){$("loginMsg").textContent="هذا المركز لم يتم تفعيل حسابه بعد.";return}
- if(pin!==c.pin){$("loginMsg").textContent="الرقم السري غير صحيح.";return}
- sessionStorage.setItem("betonTG.current",name); openHome();
+ const name=$("loginCenter").value,pin=$("loginPin").value.trim(),c=getCenters().find(x=>x.name===name);
+ if(!c||!c.pin){$("loginMsg").textContent=lang()==="ar"?"الحساب غير مفعّل بعد.":"Ce compte n'est pas encore activé.";return;}
+ if(pin!==c.pin){$("loginMsg").textContent=lang()==="ar"?"الرقم السري غير صحيح.":"PIN incorrect.";return;}
+ sessionStorage.setItem("betonTG.current",name);openHome();
 }
-function openHome(){
- const c=sessionStorage.getItem("betonTG.current"); if(!c)return;
- $("currentCenter").textContent="المركز: "+c; hideAll(); $("home").classList.remove("hidden");
-}
+function openHome(){const c=currentCenter();if(!c)return;$("currentCenter").textContent=(lang()==="ar"?"المركز: ":"Centre : ")+c;hideAll();$("home").classList.remove("hidden");setLanguage(lang());}
 function logout(){sessionStorage.removeItem("betonTG.current");showWelcome();}
-function openCalcul(){hideAll();$("calcul").classList.remove("hidden");populateTypes();calculate();}
-function populateTypes(){
- const f=formulasFor(sessionStorage.getItem("betonTG.current"));
- $("type").innerHTML=Object.keys(f).map(x=>`<option>${x}</option>`).join("");
-}
+function openCalcul(){hideAll();$("calcul").classList.remove("hidden");fillConcreteTypes();$("qty").focus();$("results").innerHTML="";$("calcMsg").textContent="";setLanguage(lang());}
+function fillConcreteTypes(){const f=getData(currentCenter()).formulas;const old=$("type").value;$("type").innerHTML=Object.keys(f).map(k=>`<option value="${k}">${k}</option>`).join("");if(f[old])$("type").value=old;}
 function calculate(){
- const center=sessionStorage.getItem("betonTG.current"), f=formulasFor(center), type=$("type").value, q=parseFloat($("qty").value)||0, r=f[type];
- if(!r)return;
- const rows=[
-  ["G1",r.G1,data.densities.G1],["G2",r.G2,data.densities.G2],["SL",r.SL,data.densities.SL],["SC",r.SC,data.densities.SC],
-  ["Ciment",r.Ciment,null],["Adjuvant",r.Adjuvant,null],["Eau",r.Eau,null]
- ];
- $("results").innerHTML=rows.map(([n,v,d])=>{
-   const kg=v*q, vol=d?(kg/d):null;
-   return `<tr><td>${n}</td><td>${kg.toFixed(2)} kg</td><td>${vol===null?"—":vol.toFixed(2)+" m³"}</td></tr>`;
- }).join("");
+ const data=getData(currentCenter()),type=$("type").value,qty=parseFloat($("qty").value);
+ if(!qty||qty<=0){$("results").innerHTML="";$("calcMsg").textContent=lang()==="ar"?"أدخل كمية صحيحة.":"Veuillez saisir une quantité valide.";return;}
+ const r=data.formulas[type];if(!r)return;
+ const rows=[["G1",r.G1,data.densities.G1],["G2",r.G2,data.densities.G2],["SL",r.SL,data.densities.SL],["SC",r.SC,data.densities.SC],["Ciment",r.Ciment,null],["Adjuvant",r.Adjuvant,null],["Eau",r.Eau,null]];
+ $("results").innerHTML=rows.map(([n,dose,density])=>{const kg=dose*qty,m3=density?kg/density:null;return `<tr><td><strong>${n}</strong></td><td>${kg.toFixed(2)} kg</td><td>${m3===null?"—":m3.toFixed(3)+" m³"}</td></tr>`}).join("");
+ $("calcMsg").textContent="";
 }
-function openFormules(){
- hideAll();$("formules").classList.remove("hidden");
- renderFormula();
-}
+function openFormules(){hideAll();$("formules").classList.remove("hidden");renderFormula();setLanguage(lang());}
 function renderFormula(){
- const f=formulasFor(sessionStorage.getItem("betonTG.current")), type=$("formulaType").value || Object.keys(f)[0];
- $("formulaType").innerHTML=Object.keys(f).map(x=>`<option ${x===type?"selected":""}>${x}</option>`).join("");
- const r=f[type];
+ const data=getData(currentCenter()),f=data.formulas,old=$("formulaType").value;
+ $("formulaType").innerHTML=Object.keys(f).map(k=>`<option value="${k}">${k}</option>`).join("");
+ if(f[old])$("formulaType").value=old;
+ const r=f[$("formulaType").value];if(!r)return;
  ["G1","G2","SL","SC","Ciment","Adjuvant","Eau"].forEach(k=>$(k).value=r[k]);
+ ["D_G1","D_G2","D_SL","D_SC"].forEach((id,i)=>$(id).value=data.densities[["G1","G2","SL","SC"][i]]);
 }
-function saveFormula(){
- const center=sessionStorage.getItem("betonTG.current");
- const pin=prompt("أدخل الرقم السري للمركز لتأكيد الحفظ:");
- if(pin===null)return;
- const c=centers().find(x=>x.name===center);
- if(!c || pin!==c.pin){alert("الرقم السري غير صحيح. لم يتم الحفظ.");return}
- const all=formulasFor(center), type=$("formulaType").value;
- all[type]={};
- ["G1","G2","SL","SC","Ciment","Adjuvant","Eau"].forEach(k=>all[type][k]=parseFloat($(k).value)||0);
- saveFormulas(center,all);
- alert("تم حفظ التعديلات بنجاح.");
+function confirmPin(){
+ const pin=prompt(lang()==="ar"?"أدخل الرقم السري للمركز لتأكيد العملية:":"Entrez le PIN du centre pour confirmer :");
+ if(pin===null)return false;const c=getCenters().find(x=>x.name===currentCenter());
+ if(!c||pin!==c.pin){alert(lang()==="ar"?"الرقم السري غير صحيح.":"PIN incorrect.");return false;}return true;
 }
-function addFormula(){
- const name=prompt("اسم نوع الخرسانة الجديد، مثلاً B40:");
- if(!name)return;
- const f=formulasFor(sessionStorage.getItem("betonTG.current")), n=name.trim().toUpperCase();
- if(f[n]){alert("هذا النوع موجود بالفعل.");return}
- f[n]={G1:0,G2:0,SL:0,SC:0,Ciment:0,Adjuvant:0,Eau:0};
- saveFormulas(sessionStorage.getItem("betonTG.current"),f); renderFormula();
-}
-function deleteFormula(){
- const center=sessionStorage.getItem("betonTG.current"), f=formulasFor(center), type=$("formulaType").value;
- if(Object.keys(f).length<=1){alert("يجب الاحتفاظ بنوع واحد على الأقل.");return}
- const pin=prompt("أدخل الرقم السري للمركز لتأكيد الحذف:");
- if(pin===null)return;
- const c=centers().find(x=>x.name===center);
- if(!c||pin!==c.pin){alert("الرقم السري غير صحيح. لم يتم الحذف.");return}
- delete f[type]; saveFormulas(center,f); renderFormula(); alert("تم حذف الوصفة.");
-}
-window.addEventListener("load",()=>{if(sessionStorage.getItem("betonTG.current"))openHome();});
-if("serviceWorker" in navigator) window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js"));
+function saveFormula(){if(!confirmPin())return;const data=getData(currentCenter()),type=$("formulaType").value;
+ data.formulas[type]={G1:+$("G1").value||0,G2:+$("G2").value||0,SL:+$("SL").value||0,SC:+$("SC").value||0,Ciment:+$("Ciment").value||0,Adjuvant:+$("Adjuvant").value||0,Eau:+$("Eau").value||0};
+ data.densities={G1:+$("D_G1").value||0,G2:+$("D_G2").value||0,SL:+$("D_SL").value||0,SC:+$("D_SC").value||0};
+ saveData(currentCenter(),data);fillConcreteTypes();calculate();alert(lang()==="ar"?"تم حفظ الفورمول والكثافات.":"Formule et densités enregistrées.");}
+function addFormula(){const n=(prompt(lang()==="ar"?"اسم نوع الخرسانة الجديد:":"Nom de la nouvelle formule :")||"").trim().toUpperCase();if(!n)return;const data=getData(currentCenter());if(data.formulas[n]){alert(lang()==="ar"?"هذه الفورمول موجودة بالفعل.":"Cette formule existe déjà.");return;}if(!confirmPin())return;data.formulas[n]={G1:0,G2:0,SL:0,SC:0,Ciment:0,Adjuvant:0,Eau:0};saveData(currentCenter(),data);renderFormula();alert(lang()==="ar"?"تمت إضافة الفورمول. أدخل القيم ثم اضغط حفظ.":"Formule ajoutée. Saisissez les valeurs puis cliquez sur Enregistrer.");}
+function deleteFormula(){const data=getData(currentCenter()),type=$("formulaType").value;if(Object.keys(data.formulas).length<=1){alert(lang()==="ar"?"يجب الاحتفاظ بفورمول واحدة على الأقل.":"Gardez au moins une formule.");return;}if(!confirmPin())return;delete data.formulas[type];saveData(currentCenter(),data);renderFormula();fillConcreteTypes();alert(lang()==="ar"?"تم حذف الفورمول.":"Formule supprimée.");}
+window.addEventListener("load",()=>{setLanguage(lang());if(currentCenter())openHome();});
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js"));
