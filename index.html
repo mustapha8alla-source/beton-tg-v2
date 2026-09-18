@@ -67,7 +67,7 @@
     <button class="module">📦<span data-fr="Stock" data-ar="المخزون">Stock</span></button>
     <button class="module">🏭<span data-fr="Production" data-ar="الإنتاج">Production</span></button>
     <button class="module">📋<span data-fr="Commandes" data-ar="الطلبات">Commandes</span></button>
-    <button class="module">🚚<span data-fr="Camions" data-ar="الشاحنات">Camions</span></button>
+    <button class="module" onclick="openTrucks()">🚚<span data-fr="Camions" data-ar="الشاحنات">Camions</span></button>
     <button class="module">👥<span data-fr="Clients" data-ar="العملاء">Clients</span></button>
     <button class="module">💰<span data-fr="Dépenses" data-ar="المصاريف">Dépenses</span></button>
     <button class="module">📊<span data-fr="Rapports" data-ar="التقارير">Rapports</span></button>
@@ -122,7 +122,18 @@
   <p class="hint" data-fr="Les modifications ne sont enregistrées qu'après validation avec le PIN du centre."
      data-ar="لن يتم حفظ التعديلات إلا بعد تأكيدها بالرقم السري للمركز.">Les modifications ne sont enregistrées qu'après validation avec le PIN du centre.</p>
 </section>
-</main>
+<section id="trucks" class="card hidden">
+<div class="sectionhead"><h2 data-fr="🚚 Gestion des camions" data-ar="🚚 إدارة الشاحنات">🚚 Gestion des camions</h2><button class="small" onclick="openHome()" data-fr="← Accueil" data-ar="← الرئيسية">← Accueil</button></div>
+<div class="truck-actions"><button onclick="addTruck()" data-fr="➕ Ajouter un camion" data-ar="➕ إضافة شاحنة">➕ Ajouter un camion</button><button class="secondary" onclick="deleteTruck()" data-fr="🗑️ Supprimer un camion" data-ar="🗑️ حذف شاحنة">🗑️ Supprimer un camion</button></div>
+<h3 data-fr="Suivi quotidien" data-ar="المتابعة اليومية">Suivi quotidien</h3>
+<div class="daily-box"><label data-fr="Date" data-ar="التاريخ">Date</label><input id="truckDate" type="date"><button onclick="saveDailyTruckStatus()" data-fr="💾 Enregistrer la journée" data-ar="💾 حفظ حالة اليوم">💾 Enregistrer la journée</button></div>
+<div id="truckDailyList"></div>
+<h3 data-fr="Synthèse par période" data-ar="ملخص حسب المدة">Synthèse par période</h3>
+<div class="period-grid"><label data-fr="Du" data-ar="من">Du<input id="truckFrom" type="date"></label><label data-fr="Au" data-ar="إلى">Au<input id="truckTo" type="date"></label></div>
+<button onclick="truckSummary()" data-fr="📊 Afficher la synthèse" data-ar="📊 عرض الملخص">📊 Afficher la synthèse</button>
+<div id="truckSummary"></div>
+<p class="hint" data-fr="Chaque journée enregistrée est comptée comme Travail ou Arrêt." data-ar="كل يوم مسجل يحسب كاشتغال أو توقف.">Chaque journée enregistrée est comptée comme Travail ou Arrêt.</p>
+</section></main>
 
 <script src="app.js"></script>
 </body>
